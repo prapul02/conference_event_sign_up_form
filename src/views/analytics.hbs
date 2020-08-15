@@ -1,0 +1,101 @@
+<div class="container"><iframe class="chartjs-hidden-iframe" tabindex="-1"
+    style="display: block; overflow: hidden; border: 0px; margin: 0px; top: 0px; left: 0px; bottom: 0px; right: 0px; height: 100%; width: 100%; position: absolute; pointer-events: none; z-index: -1;"></iframe>
+  <canvas id="myChart" width="626" height="313" style="display: block; width: 626px; height: 313px;"></canvas>
+</div>
+
+<script>
+  const config = {
+    method: "GET",
+  }
+
+  var yearsExp = [];
+  var nameF = [];
+  var prof = [];
+  fetch("/api/customers/", config)
+    .then(response => {
+      if (response.status === 200) {
+        return response.json()
+      }
+      else {
+        throw (new Error(response.status))
+      }
+    })
+    .then(data => {
+      //  console.log(data);
+      for (const dataObj of data.data) {
+        yearsExp.push(parseInt(dataObj.years));
+        nameF.push(dataObj.firstName);
+        createChart(nameF, yearsExp);
+      }
+      console.log(prof);
+    })
+    .catch(error => {
+      switch (error.message) {
+        case "400":
+          alert("Please check form values...");
+          break;
+        case "500":
+          alert("Please Try after some time...");
+          break;
+        default:
+          console.error(error);
+      }
+    })
+  function createChart(nameF, yearsExp) {
+    let myChart = document.getElementById('myChart').getContext('2d');
+
+    // Global Options
+    Chart.defaults.global.defaultFontFamily = 'Lato';
+    Chart.defaults.global.defaultFontSize = 18;
+    Chart.defaults.global.defaultFontColor = '#777';
+    let massPopChart = new Chart(myChart, {
+      type: 'bar', // bar, horizontalBar, pie, line, doughnut, radar, polarArea
+      data: {
+        labels: nameF,
+        datasets: [{
+          label: 'Experience',
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.6)',
+            'rgba(54, 162, 235, 0.6)',
+            'rgba(255, 206, 86, 0.6)',
+            'rgba(75, 192, 192, 0.6)',
+            'rgba(153, 102, 255, 0.6)',
+            'rgba(255, 159, 64, 0.6)',
+            'rgba(255, 99, 132, 0.6)'
+          ],
+          // backgroundColor: 'green',
+          borderWidth: 1,
+          borderColor: '#777',
+          hoverBorderWidth: 3,
+          hoverBorderColor: '#000',
+          data: yearsExp
+        }]
+      },
+      options: {
+        title: {
+          display: true,
+          text: 'Years of Experience',
+          fontSize: 25
+        },
+        legend: {
+          display: true,
+          position: 'right',
+          labels: {
+            fontColor: '#000'
+          }
+        },
+        layout: {
+          padding: {
+            left: 50,
+            right: 0,
+            bottom: 0,
+            top: 0
+          }
+        },
+        tooltips: {
+          enabled: true
+        }
+      }
+    });
+  }
+</script>
